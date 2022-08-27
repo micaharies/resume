@@ -1,0 +1,31 @@
+name: Compile PDF
+
+on:
+  push:
+    branches: [main] # The branch compilation/release runs on.
+
+env:
+  filename: "resume" # Filename of the PDF that gets created as a release.
+  release_tag: "latest" # Tag to release under.
+  prerelease: false # Is this a prerelease?
+  title: "Résumé - PDF" # Title of the GitHub Release.
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Compile LaTeX document
+        uses: xu-cheng/latex-action@v2
+        with:
+          root_file: ${{ env.filename }}.tex
+          latexmk_use_lualatex: true
+
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "${{ env.release_tag }}"
+          prerelease: "${{ env.prerelease }}"
+          title: "${{ env.title }}"
+          files: "${{ env.filename }}.pdf"
